@@ -2,12 +2,12 @@
   "name": "slack-aqi",
   "version": "0.0.1",
   "description": "A simple Node app built on Express, instantly up and running.",
-  "main": "server.js",
+  "main": "functions/slack-aqi.js",
   "scripts": {
     "start": "NODE_ENV=dev npm run start:server",
-    "start:server": "netlify-lambda serve functions",
+    "start:server": "npx netlify-lambda serve functions",
     "build": "npm run build:functions",
-    "build:functions": "netlify-lambda build functions"
+    "build:functions": "npx netlify-lambda build functions"
   },
   "proxy": {
     "/.netlify/functions": {

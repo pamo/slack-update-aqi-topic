@@ -1,7 +1,3 @@
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import logger from '../utils/logger';
 import { updateSlackChannelTopic } from './slack';
 import { getAQIForZip } from './aqi';
 
@@ -28,26 +24,14 @@ const generateTopic = ({ level, aqi, status, area }) => {
   } *AQI* for ${area} is currently ${aqi} (${status} ${emotion} )`;
 };
 
-export default function expressApp(functionName) {
-  const app = express();
-  const router = express.Router();
-
-  const routerBasePath =
-    process.env.NODE_ENV === 'dev'
-      ? `/${functionName}`
-      : `/.netlify/functions/${functionName}/`;
-
-  app.use(morgan(logger));
-  app.use(routerBasePath, router);
-  router.use(cors());
-
+export default function app() {
   const threeHours = 10800000;
-  setInterval(() => {
-    getAQIForZip().then(
-      data => updateSlackChannelTopic(generateTopic(data)),
-      console.error
-    );
-  }, threeHours);
-
-  return app;
+  return new Promise((resolve, reject) => {
+    setInterval(() => {
+      getAQIForZip().then(data => {
+        updateSlackChannelTopic(generateTopic(data));
+        resolve(data);
+      }, reject);
+    }, threeHours);
+  });
 }

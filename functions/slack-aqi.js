@@ -5,5 +5,11 @@ const functionName = 'slack-aqi';
 
 // Export Lambda handler
 exports.handler = (event, context) => {
-  return app();
+  console.log('doing the thing');
+  return app()
+    .then(data => ({
+      statusCode: 200,
+      body: `${data}`
+    }))
+    .catch(error => ({ statusCode: 422, body: String(error) }));
 };

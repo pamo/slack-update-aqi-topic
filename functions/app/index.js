@@ -1,7 +1,8 @@
 import { updateSlackChannelTopic } from './slack';
 import { getAQIForZip } from './aqi';
 
-const generateTopic = ({ level, aqi, status, area }) => {
+const generateTopic = data => {
+  const { status, level, area, aqi } = data;
   const aqiEmojiMap = {
     1: ':green_heart:',
     2: ':yellow_heart:',
@@ -24,14 +25,12 @@ const generateTopic = ({ level, aqi, status, area }) => {
   } *AQI* for ${area} is currently ${aqi} (${status} ${emotion} )`;
 };
 
-export default function app() {
-  const threeHours = 10800000;
-  return new Promise((resolve, reject) => {
-    setInterval(() => {
-      getAQIForZip().then(data => {
-        updateSlackChannelTopic(generateTopic(data));
-        resolve(data);
-      }, reject);
-    }, threeHours);
-  });
+export default function app(callback) {
+  getAQIForZip('94103').then(
+    data => {
+      updateSlackChannelTopic(generateTopic(data));
+      callback(null, { statusCode: 200, body: generateTopic(data) });
+    },
+    error => callback({ statusCode: 422, body: String(error) })
+  );
 }
